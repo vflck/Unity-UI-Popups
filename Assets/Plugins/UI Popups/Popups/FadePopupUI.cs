@@ -5,13 +5,11 @@ using UnityEngine;
 [AddComponentMenu("UI Popup/Fade Popup")]
 public class FadePopupUI : BasePopupUI
 {
+    [Space, Header("FADE SETTINGS:")]
     [SerializeField] private CanvasGroup targetCanvasGroup;
-    [Header("PREFERENCES:")]
+    [Space]
     [SerializeField, Range(0,1)] private float opacityHided = 0f;
     [SerializeField, Range(0,1)] private float opacityShowed = 1f;
-    [Space(7)]
-    [SerializeField, Min(0)] private float animationTime = 0.15f;
-    [SerializeField] private bool useScaledTime = true;
 
     private void Reset()
     {
@@ -33,6 +31,12 @@ public class FadePopupUI : BasePopupUI
         }
         targetCanvasGroup.alpha = endAlpha;
 
+        ChangeStateTo(show);
+    }
+
+    protected override void ShowInstant(bool show)
+    {
+        targetCanvasGroup.alpha = show ? opacityShowed : opacityHided;
         ChangeStateTo(show);
     }
 }

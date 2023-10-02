@@ -5,13 +5,11 @@ using UnityEngine;
 [AddComponentMenu("UI Popup/Scale Popup")]
 public class ScalePopupUI : BasePopupUI
 {
+    [Space, Header("SCALE SETTINGS:")]
     [SerializeField] private RectTransform targetTransform;
-    [Header("PREFERENCES:")]
+    [Space]
     [SerializeField] private float scaleHided = 0f;
     [SerializeField] private float scaleShowed = 1f;
-    [Space(7)]
-    [SerializeField, Min(0)] private float animationTime = 0.15f;
-    [SerializeField] private bool useScaledTime = true;
 
     private void Reset()
     {
@@ -19,7 +17,7 @@ public class ScalePopupUI : BasePopupUI
     }
     
     protected override IEnumerator ShowAnimation(bool show)
-    {    
+    {
         Vector3 startScale = targetTransform.localScale;
         Vector3 endScale = Vector3.one * (show ? scaleShowed : scaleHided);
 
@@ -33,6 +31,12 @@ public class ScalePopupUI : BasePopupUI
         }
         targetTransform.localScale = endScale;
 
+        ChangeStateTo(show);
+    }
+    
+    protected override void ShowInstant(bool show)
+    {
+        targetTransform.localScale = Vector3.one * (show ? scaleShowed : scaleHided);
         ChangeStateTo(show);
     }
 }
