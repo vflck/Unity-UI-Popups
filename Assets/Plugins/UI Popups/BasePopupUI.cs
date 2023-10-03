@@ -1,50 +1,59 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UIPopups.EasingFunctions;
 
-public abstract class BasePopupUI : MonoBehaviour
+namespace UIPopups
 {
-    public bool IsShowing { get; protected set; }
-    public Action OnShowed, OnHided;
-
-    [SerializeField] private bool initialHided = false;
-    [SerializeField] private bool disableOnHide = true;
-    
-    [Header("TIME SETTINGS:")]
-    [SerializeField, Min(0)] protected float animationTime = 0.15f;
-    [SerializeField] protected bool useScaledTime = true;
-
-    private void Start()
+    public abstract class BasePopupUI : MonoBehaviour
     {
-        ShowInstant(initialHided);
-    }
+        public bool IsShowing { get; protected set; }
+        public Action OnShowed, OnHided;
 
-    public void Show(bool show)
-    {
-        gameObject.SetActive(true);
-        if (showCoroutine != null)
-            StopCoroutine(showCoroutine);
+        [SerializeField] private bool initialHided = true;
+        [SerializeField] private bool disableOnHide = true;
         
-        showCoroutine = StartCoroutine(ShowAnimation(show));
-    }
-    
-    private Coroutine showCoroutine;
-    protected abstract IEnumerator ShowAnimation(bool show);
-    protected abstract void ShowInstant(bool show);
+        [Header("ANIMATION SETTINGS:")]
+        [SerializeField] protected Ease easeType = Ease.InOutQuad;
+        [SerializeField, Min(0)] protected float animationTime = 0.15f;
+        [SerializeField] protected bool useScaledTime = true;
 
-    protected void ChangeStateTo(bool newState)
-    {
-        IsShowing = newState;
-
-        if (newState)
+        private void Start()
         {
-            OnShowed?.Invoke();
+            ShowInstant(!initialHided);
         }
-        else
+
+        public void Show(bool show)
         {
-            OnHided?.Invoke();
-            if (disableOnHide)
-                gameObject.SetActive(false);
+            if (show == IsShowing)
+                return;
+
+            gameObject.SetActive(true);
+            if (showCoroutine != null) {
+                StopCoroutine(showCoroutine);
+            }
+            
+            showCoroutine = StartCoroutine(ShowAnimation(show));
+        }
+        
+        private Coroutine showCoroutine;
+        protected abstract IEnumerator ShowAnimation(bool show);
+        protected abstract void ShowInstant(bool show);
+
+        protected void ChangeStateTo(bool newState)
+        {
+            IsShowing = newState;
+
+            if (newState)
+            {
+                OnShowed?.Invoke();
+            }
+            else
+            {
+                OnHided?.Invoke();
+                if (disableOnHide)
+                    gameObject.SetActive(false);
+            }
         }
     }
 }

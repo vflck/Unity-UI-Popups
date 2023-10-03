@@ -1,44 +1,51 @@
 using System.Collections;
 using UnityEngine;
+using UIPopups.EasingFunctions;
 
-[RequireComponent(typeof(RectTransform))]
-[AddComponentMenu("UI Popup/Move Popup")]
-public class MovePopupUI : BasePopupUI
+namespace UIPopups
 {
-    [Space, Header("MOVE SETTINGS:")]
-    [SerializeField] private RectTransform targetTransform;
-    [Space]
-    [SerializeField] private Vector2 anchoredPositionHided;
-    [SerializeField] private Vector2 anchoredPositionBeforeShowed;
-    [SerializeField] private Vector2 anchoredPositionShowed;
-
-    private void Reset()
+    [RequireComponent(typeof(RectTransform))]
+    [AddComponentMenu("UI Popup/Move Popup")]
+    public class MovePopupUI : BasePopupUI
     {
-        targetTransform = GetComponent<RectTransform>();
-    }
-    
-    protected override IEnumerator ShowAnimation(bool show)
-    {
-        targetTransform.anchoredPosition = anchoredPositionBeforeShowed;
-        Vector2 startPosition = show ? anchoredPositionBeforeShowed : anchoredPositionShowed;
-        Vector2 endPosition = show ? anchoredPositionShowed : anchoredPositionHided;
+        [Space, Header("MOVE SETTINGS:")]
+        [SerializeField] private RectTransform targetTransform;
+        [Space]
+        [SerializeField] private Vector2 anchoredPositionHided;
+        [SerializeField] private Vector2 anchoredPositionBeforeShowed;
+        [SerializeField] private Vector2 anchoredPositionShowed;
 
-        float elapsedTime = 0;
-        while (elapsedTime <= animationTime)
+        private void Reset()
         {
-            targetTransform.anchoredPosition = Vector3.Lerp(startPosition, endPosition, elapsedTime / animationTime);
-
-            elapsedTime += useScaledTime ? Time.deltaTime : Time.unscaledDeltaTime;
-            yield return null;
+            targetTransform = GetComponent<RectTransform>();
         }
-        targetTransform.anchoredPosition = endPosition;
+        
+        protected override IEnumerator ShowAnimation(bool show)
+        {
+            var function = Easing.GetEaseFunction(easeType);
 
-        ChangeStateTo(show);
-    }
-    
-    protected override void ShowInstant(bool show)
-    {
-        targetTransform.anchoredPosition = show ? anchoredPositionShowed : anchoredPositionHided;
-        ChangeStateTo(show);
+            targetTransform.anchoredPosition = anchoredPositionBeforeShowed;
+            Vector2 startPosition = show ? anchoredPositionBeforeShowed : anchoredPositionShowed;
+            Vector2 endPosition = show ? anchoredPositionShowed : anchoredPositionHided;
+
+            float elapsedTime = 0;
+            while (elapsedTime <= animationTime)
+            {
+                targetTransform.anchoredPosition = Vector3.LerpUnclamped(startPosition, endPosition,
+                                                    Easing.Calculate(elapsedTime / animationTime, function));
+
+                elapsedTime += useScaledTime ? Time.deltaTime : Time.unscaledDeltaTime;
+                yield return null;
+            }
+            targetTransform.anchoredPosition = endPosition;
+
+            ChangeStateTo(show);
+        }
+        
+        protected override void ShowInstant(bool show)
+        {
+            targetTransform.anchoredPosition = show ? anchoredPositionShowed : anchoredPositionHided;
+            ChangeStateTo(show);
+        }
     }
 }
